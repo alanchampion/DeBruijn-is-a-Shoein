@@ -1,2 +1,5 @@
 bin/*
 shoein
+cuda-examples/*
+!cuda-examples/**/
+!cuda-examples/*.*
