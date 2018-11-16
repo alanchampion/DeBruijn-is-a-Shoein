@@ -1,5 +1,12 @@
-bin/*
-shoein
-cuda-examples/*
-!cuda-examples/**/
-!cuda-examples/*.*
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+# Ignore bin dir
+bin/
+
