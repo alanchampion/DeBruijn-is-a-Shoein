@@ -12,7 +12,7 @@
 NAME = shoein
 
 # Flags passed to the preprocessor
-CPPFLAGS += -Wall -MMD -MP -Isrc -g -fopenmp -std=c++11
+CPPFLAGS += -Wall -MMD -MP -Isrc -g -fopenmp -std=c++11 
 
 # ALL .cpp files.
 SRCS = $(shell find src -name '*.cpp')

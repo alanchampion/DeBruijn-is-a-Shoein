@@ -12,3 +12,6 @@ bin/
 
 # Ignore out files
 *.out
+
+# Ignore fastq dir
+fastq/
