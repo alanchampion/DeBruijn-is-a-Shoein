@@ -12,19 +12,16 @@
 NAME = shoein
 
 # Flags passed to the preprocessor
-CPPFLAGS += -std=c++11
+CPPFLAGS += -Wall -MMD -MP -Isrc -g -fopenmp -std=c++11
 
-# NVCC compiler
-NVCC = nvcc
-
-# ALL .cu files.
-SRCS = $(shell find src -name '*.cu')
-OBJS = $(SRCS:src/%.cu=bin/%.o)
-DEPS = $(SRCS:src/%.cu=bin/%.d)
+# ALL .cpp files.
+SRCS = $(shell find src -name '*.cpp')
+OBJS = $(SRCS:src/%.cpp=bin/%.o)
+DEPS = $(SRCS:src/%.cpp=bin/%.d)
 
 # Default target
 $(NAME): $(OBJS)
-	$(NVCC) $(CPPFLAGS) $^ -o $(NAME)
+	$(CXX) $(CPPFLAGS) $^ -o $(NAME)
 
 # Build and run the program
 run: $(NAME)
@@ -42,8 +39,8 @@ bin:
 	mkdir -p $(shell find src -type d | sed "s/src/bin/")
 
 # Build objects.
-bin/%.o: src/%.cu
-	$(NVCC) $(CPPFLAGS) $< -c -o $@
+bin/%.o: src/%.cpp
+	$(CXX) $(CPPFLAGS) $< -c -o $@
 
 # Auto dependency management.
 -include $(DEPS)

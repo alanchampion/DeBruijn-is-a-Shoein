@@ -10,3 +10,5 @@
 # Ignore bin dir
 bin/
 
+# Ignore out files
+*.out
