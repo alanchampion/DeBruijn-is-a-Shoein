@@ -33,6 +33,8 @@ int main(int argc, char* argv[]) {
     printf("Created graph in %.3f seconds\n", time);
 
 	// createGraph();
+	eulerFinder finder = eulerFinder(kmerSize);
+	finder.getPath(graph);
 
 	// graph.printGraph();
 

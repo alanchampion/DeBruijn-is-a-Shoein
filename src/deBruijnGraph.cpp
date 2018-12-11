@@ -23,6 +23,12 @@ void deBruijnGraph::setKmerSize(int kmerSize) {
 
 void deBruijnGraph::addEdge(string from, string to) {
 	// printf("(%s, %s)\n", from.c_str(), to.c_str());
+	if(startNode == "") {
+		startNode = from;
+	}
+
+	updateNodeCount(from);
+	updateNodeCount(to);
 
 	string edge;
 	if(from == "") {
@@ -36,7 +42,6 @@ void deBruijnGraph::addEdge(string from, string to) {
 		graph.insert(make_pair(edge, set<tuple<char, char>>()));
 	}
 
-	// TODO Get all the possible edges. 
 	if(from != "" && to != "") {
 		// printf("Adding to edge %s tuple (%c, %c)\n", edge.c_str(), from[0], to[kmerSize-1]);
 		auto e = begin(graph.at(edge));
@@ -104,4 +109,43 @@ void deBruijnGraph::printGraph() {
 		}
 		printf("\n");
 	}
+}
+
+void deBruijnGraph::updateNodeCount(string node) {
+	if(node == "") {
+		return;
+	}
+
+	string front = node.substr(0, kmerSize-1);
+	string back = node.substr(1, kmerSize-1);
+	nodeCount++;
+
+	if(graph.find(front) != graph.end()) {
+		for(auto p : graph.at(front)) {
+			if(front+get<1>(p) == node) {
+				nodeCount--;
+				return;
+			}
+		}
+	}
+	if(graph.find(back) != graph.end()) {
+		for(auto p : graph.at(back)) {
+			if(get<0>(p)+back == node) {
+				nodeCount--;
+				return;
+			}
+		}
+	}
+}
+
+int deBruijnGraph::getNodeCount() {
+	return nodeCount;
+}
+
+string deBruijnGraph::getStartNode() {
+	return startNode;
+}
+
+set<tuple<char, char>> deBruijnGraph::getNodes(string edge) {
+	return graph.at(edge);
 }

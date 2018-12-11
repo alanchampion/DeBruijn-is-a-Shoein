@@ -6,6 +6,16 @@
 
 using namespace std;
 
-void getPath(deBruijnGraph graph) {
-	graph.printGraph();
-}
+class eulerFinder {
+	public:
+		void getPath(deBruijnGraph);
+		eulerFinder(int kmerSize) {
+			this->kmerSize = kmerSize;
+		}
+	private:
+		deBruijnGraph graph;
+		unordered_map<string, bool> visited;
+		int kmerSize;
+		void DFS();
+		string visit(string);
+};
