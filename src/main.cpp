@@ -1,5 +1,4 @@
 #include <fstream>
-#include <vector>
 #include <iostream>
 #include <string>
 #include <stdlib.h>
@@ -53,7 +52,7 @@ void createGraph() {
 	std::string line;
 	bool wasAt = false;
 
-	while(inFile >> line) {
+	while(getline(inFile, line)) {
 		if(wasAt && line[0] != '@') {
 			wasAt = false;
 			graph.readRead(line);
