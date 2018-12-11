@@ -39,13 +39,60 @@ void deBruijnGraph::addEdge(string from, string to) {
 	// TODO Get all the possible edges. 
 	if(from != "" && to != "") {
 		// printf("Adding to edge %s tuple (%c, %c)\n", edge.c_str(), from[0], to[kmerSize-1]);
+		auto e = begin(graph.at(edge));
+
+		while(e != end(graph.at(edge))) {
+			if(get<0>(*e) == FRONT) {
+				graph.at(edge).insert(tuple<char, char>(from[0], get<1>(*e)));
+				e = graph.at(edge).erase(e);
+			} else if(get<1>(*e) == BACK) {
+				graph.at(edge).insert(tuple<char, char>(get<0>(*e), to[kmerSize-1]));
+				e = graph.at(edge).erase(e);
+			} else {
+				graph.at(edge).insert(tuple<char, char>(from[0], get<1>(*e)));
+				graph.at(edge).insert(tuple<char, char>(get<0>(*e), to[kmerSize-1]));
+			}
+			++e;
+		}
 		graph.at(edge).insert(tuple<char, char>(from[0], to[kmerSize-1]));
 	} 
 	if(from == "") {
-		graph.at(edge).insert(tuple<char, char>(FRONT, to[kmerSize-1]));
+		auto e = begin(graph.at(edge));
+		bool add = true;
+
+		while(e != end(graph.at(edge))) {
+			if(get<1>(*e) == BACK) {
+				graph.at(edge).insert(tuple<char, char>(get<0>(*e), to[kmerSize-1]));
+				add = false;
+				e = graph.at(edge).erase(e);
+			} else if(get<0>(*e) != FRONT) {
+				add = false;
+				graph.at(edge).insert(tuple<char, char>(get<0>(*e), to[kmerSize-1]));
+			}
+			++e;
+		}
+		if(add) {
+			graph.at(edge).insert(tuple<char, char>(FRONT, to[kmerSize-1]));
+		}
 	}
 	if(to == "") {
-		graph.at(edge).insert(tuple<char, char>(from[0], BACK));
+		auto e = begin(graph.at(edge));
+		bool add = true;
+
+		while(e != end(graph.at(edge))) {
+			if(get<0>(*e) == FRONT) {
+				graph.at(edge).insert(tuple<char, char>(from[0], get<1>(*e)));
+				add = false;
+				e = graph.at(edge).erase(e);
+			} else if(get<1>(*e) != BACK) {
+				graph.at(edge).insert(tuple<char, char>(from[0], get<1>(*e)));
+				add = false;
+			}
+			++e;
+		}
+		if(add) {
+			graph.at(edge).insert(tuple<char, char>(from[0], BACK));
+		}
 	}
 }
 

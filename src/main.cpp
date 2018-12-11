@@ -4,6 +4,7 @@
 #include <string>
 #include <stdlib.h>
 #include "deBruijnGraph.h"
+#include "omp.h"
 
 std::string graphIn;
 int kmerSize;
@@ -25,9 +26,15 @@ int main(int argc, char* argv[]) {
 
 	graph.setKmerSize(kmerSize);
 
+	double start = omp_get_wtime();
 	createGraph();
+	double stop = omp_get_wtime();
+    double time = stop - start;
+    printf("Created graph in %.3f seconds\n", time);
 
-	graph.printGraph();
+	// createGraph();
+
+	// graph.printGraph();
 
 	return(0);
 };
