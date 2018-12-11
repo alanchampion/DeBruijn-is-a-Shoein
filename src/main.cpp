@@ -3,6 +3,7 @@
 #include <string>
 #include <stdlib.h>
 #include "deBruijnGraph.h"
+#include "eulerFinder.h"
 #include "omp.h"
 
 std::string graphIn;
