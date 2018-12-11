@@ -53,7 +53,7 @@ void createGraph() {
 	std::string line;
 	bool wasAt = false;
 
-	while(inFile >> line) {
+	while(getline(inFile, line)) {
 		if(wasAt && line[0] != '@') {
 			wasAt = false;
 			graph.readRead(line);
