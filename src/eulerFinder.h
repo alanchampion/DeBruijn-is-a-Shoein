@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 #include <fstream>
+#include <set>
+#include <vector>
+#include <algorithm>
+#include <cstring> 
+#include <parallel/algorithm>
 #include "deBruijnGraph.h"
 #include "omp.h"
 
@@ -14,8 +19,10 @@ class eulerFinder {
 		}
 	private:
 		deBruijnGraph graph;
-		unordered_map<string, bool> visited;
+		unordered_map<string, string> visited;
 		int kmerSize;
+		vector<vector<string>> cycles;
 		void DFS();
-		string visit(string);
+		string visit(string, string);
+		bool merge(vector<string>, vector<string>, vector<string>&);
 };
