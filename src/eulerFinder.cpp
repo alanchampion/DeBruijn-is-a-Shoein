@@ -6,9 +6,8 @@ void eulerFinder::getPath(deBruijnGraph graph) {
 }
 
 void eulerFinder::DFS() {
-	graph.printGraph();
+	// graph.printGraph();
 	// printf("%s %d\n", graph.getStartNode().c_str(), graph.getNodeCount());
-	string solution = "";
 	printf("Begin DFS\n");
 	double start = omp_get_wtime();
 	#pragma omp parallel
@@ -18,7 +17,7 @@ void eulerFinder::DFS() {
 			visited.at(k) = false;
 		}*/
 		#pragma omp single
-		solution = visit(graph.getStartNode(), "");
+		visit(graph.getStartNode(), "");
 	}
 	double stop = omp_get_wtime();
 	double time = stop - start;
@@ -30,76 +29,56 @@ void eulerFinder::DFS() {
 		}
 		printf("\n");
 	}*/
-	printf("DFS took %.3f seconds and created %lu cycles\n", time, cycles.size());
+	printf("DFS took %.5f seconds and created %lu cycles\n", time, cycles.size());
+
 	printf("Begin Merging\n");
 	start = omp_get_wtime();
-	// #pragma omp parallel
-	{
-		/*for(int i = 0; i < int(cycles.size()); i++) {
-			for(int j = 0; j < int(cycles.size()); j++) {
-				if(i != j){
-					#pragma omp task
-					compare(cycles.at(i), cycles.at(j));
-				}
-			}
-		}*/
-		/*#pragma omp for
-		for(int i = 0; i < int(cycles.size()-1); i++) {
-			vector<string> mergedVector;
-			merge(cycles.at(i), cycles.at(i+1),mergedVector);
-		}*/
-		int i = 0;
-		int j = 1;
-		bool noMergesLeft = false;
-		bool doubleCheckMerges = false;
-		int previousCyclesSize = cycles.size();
-		while(cycles.size() > 1) {
-			if(i >= int(cycles.size()-j)) {
-				// printf("i too big\n");
-				i = 0;
-				++j;
-				if(j >= int(cycles.size())) {
-					// printf("j too big too\n");
-					if(previousCyclesSize == int(cycles.size()) && noMergesLeft) {
-						doubleCheckMerges = true;
-					}
-					if(previousCyclesSize == int(cycles.size())) {
-						noMergesLeft = true;
-					}
-					previousCyclesSize = cycles.size();
-					j = 1;
-				}
-			}
-			// printf("i: %d\nj: %d\nCycles size: %lu\n", i, j, cycles.size());
-			vector<string> mergedVector;
-			bool mergeSuccess = merge(cycles.at(i), cycles.at(i+j), mergedVector);
-			if(mergeSuccess) {
-				// cycles.erase(cycles.begin() + i);
-				cycles[i] = mergedVector;
-				cycles.erase(cycles.begin() + i+j);
-				// cycles.push_back(mergedVector);
-			} else {
-				++i;
-			}
-
-			if(noMergesLeft && doubleCheckMerges) {
-				break;
-			}
-		}
-	}
+	mergeCycles();
 	stop = omp_get_wtime();
     time = stop - start;
-    printf("Merging took %.3f seconds\n", time);
+    printf("Merging took %.5f seconds\n", time);
+    // printCycles();
+}
 
-    printf("\nCycles size: %lu\n\n", cycles.size());
-	for(auto cycle : cycles) {
-		printf("====================== CYCLE ======================\n");
-		for(auto node : cycle) {
-			printf("%c", node[0]);
+void eulerFinder::mergeCycles() {
+	int i = 0;
+	int j = 1;
+	bool noMergesLeft = false;
+	bool doubleCheckMerges = false;
+	int previousCyclesSize = cycles.size();
+	while(cycles.size() > 1) {
+		if(i >= int(cycles.size()-j)) {
+			// printf("i too big\n");
+			i = 0;
+			++j;
+			if(j >= int(cycles.size())) {
+				// printf("j too big too\n");
+				if(previousCyclesSize == int(cycles.size()) && noMergesLeft) {
+					doubleCheckMerges = true;
+				}
+				if(previousCyclesSize == int(cycles.size())) {
+					noMergesLeft = true;
+				}
+				previousCyclesSize = cycles.size();
+				j = 1;
+			}
 		}
-		printf("\n\n");
+		// printf("i: %d\nj: %d\nCycles size: %lu\n", i, j, cycles.size());
+		vector<string> mergedVector;
+		bool mergeSuccess = merge(cycles.at(i), cycles.at(i+j), mergedVector);
+		if(mergeSuccess) {
+			// cycles.erase(cycles.begin() + i);
+			cycles[i] = mergedVector;
+			cycles.erase(cycles.begin() + i+j);
+			// cycles.push_back(mergedVector);
+		} else {
+			++i;
+		}
+
+		if(noMergesLeft && doubleCheckMerges) {
+			break;
+		}
 	}
-	printf("\n");
 }
 
 bool eulerFinder::merge(vector<string> cycle1, vector<string> cycle2, vector<string>& mergedVector) {
@@ -217,11 +196,10 @@ bool eulerFinder::merge(vector<string> cycle1, vector<string> cycle2, vector<str
 	return true;
 }
 
-string eulerFinder::visit(string node, string parent) {
+void eulerFinder::visit(string node, string parent) {
 	// printf("Calling visit on %s with parent %s\n", node.c_str(), parent.c_str());
-	string cycle = node.substr(kmerSize-1, 1);
+	// string cycle = node.substr(kmerSize-1, 1);
 	if(visited.find(node) != visited.end()) {
-		// TODO cycle tracking
 		// printf("Found a already visited\n");
 		#pragma omp critical
 		{
@@ -245,7 +223,7 @@ string eulerFinder::visit(string node, string parent) {
 				cycles.push_back(readBack);
 			}
 		}
-		return cycle;
+		return;// cycle;
 	}
 	
 	#pragma omp critical
@@ -264,9 +242,43 @@ string eulerFinder::visit(string node, string parent) {
 		for(auto n : graph.getNodes(node.substr(1, kmerSize-1))) {
 			// printf("%c, %c\n", get<0>(n), get<1>(n));
 			#pragma omp task
-			cycle += visit(node.substr(1, kmerSize-1)+get<1>(n), node);
+			visit(node.substr(1, kmerSize-1)+get<1>(n), node);
+			// cycle += visit(node.substr(1, kmerSize-1)+get<1>(n), node);
+
 		}
 	}
 
-	return cycle;
+	return;// cycle;
+}
+
+void eulerFinder::printCycles() {
+	printf("\nCycles size: %lu\n\n", cycles.size());
+	for(auto cycle : cycles) {
+		printf("====================== CYCLE ======================\n");
+		for(auto node : cycle) {
+			printf("%c", node[0]);
+		}
+		printf("\n\n");
+	}
+	printf("\n");
+}
+
+void eulerFinder::printToFile(string fileName) {
+	ofstream outFile;
+	outFile.open(fileName);
+	int largestCycle = 0;
+	int largestSize = 0;
+	for(int i = 0; i < int(cycles.size()); i++) {
+		if(int(cycles.at(i).size()) > largestSize) {
+			largestSize = cycles.at(i).size();
+			largestCycle = i;
+		}
+	}
+
+	for(auto node : cycles.at(largestCycle)) {
+		outFile << node[0];
+	}
+	outFile << "\n";
+
+	outFile.close();
 }

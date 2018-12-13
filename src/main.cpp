@@ -7,6 +7,7 @@
 #include "omp.h"
 
 std::string graphIn;
+std::string cycleOut;
 int kmerSize;
 deBruijnGraph graph = deBruijnGraph();
 
@@ -23,6 +24,10 @@ int main(int argc, char* argv[]) {
 
 	graphIn = argv[1];
 	kmerSize = atoi(argv[2]);
+	cycleOut = "cycle.out";
+	if(argc > 3) {
+		cycleOut = argv[3];
+	}
 
 	graph.setKmerSize(kmerSize);
 
@@ -30,13 +35,16 @@ int main(int argc, char* argv[]) {
 	createGraph();
 	double stop = omp_get_wtime();
     double time = stop - start;
-    printf("Created graph in %.3f seconds\n", time);
+    printf("Created graph in %.5f seconds\n", time);
+    printf("Graph has %d nodes and %d edges\n", graph.getNodeCount(), graph.getEdgeCount());
 
 	// createGraph();
 	eulerFinder finder = eulerFinder(kmerSize);
 	finder.getPath(graph);
 
 	// graph.printGraph();
+	printf("Writing to file %s\n", cycleOut.c_str());
+	finder.printToFile(cycleOut);
 
 	return(0);
 };

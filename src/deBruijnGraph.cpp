@@ -25,6 +25,7 @@ void deBruijnGraph::addEdge(string from, string to) {
 	// printf("(%s, %s)\n", from.c_str(), to.c_str());
 	if(startNode == "") {
 		startNode = from;
+		startNodeSize = 1;
 	}
 
 	updateNodeCount(from);
@@ -60,6 +61,7 @@ void deBruijnGraph::addEdge(string from, string to) {
 			++e;
 		}
 		graph.at(edge).insert(tuple<char, char>(from[0], to[kmerSize-1]));
+		edgeCount++;
 	} 
 	if(from == "") {
 		auto e = begin(graph.at(edge));
@@ -98,6 +100,10 @@ void deBruijnGraph::addEdge(string from, string to) {
 		if(add) {
 			graph.at(edge).insert(tuple<char, char>(from[0], BACK));
 		}
+	}
+	if(int(graph.at(edge).size()) > startNodeSize && edge[0] != 'N') {
+		startNodeSize = graph.at(edge).size();
+		startNode = from;
 	}
 }
 
@@ -140,6 +146,10 @@ void deBruijnGraph::updateNodeCount(string node) {
 
 int deBruijnGraph::getNodeCount() {
 	return nodeCount;
+}
+
+int deBruijnGraph::getEdgeCount() {
+	return edgeCount;
 }
 
 string deBruijnGraph::getStartNode() {
